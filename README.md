@@ -160,15 +160,6 @@ java -jar target/library-api-0.0.1-SNAPSHOT.jar
 
 ---
 
-## 🧑‍💼 Talking Points (for your portfolio)
-
-- Java 17 + Spring Boot 3 REST API implementing full CRUD
-- DTO validation + global exception handling
-- Spring Data JPA with an H2 dev profile; easy swap to Postgres for prod
-- Built and run with Maven; ready for Docker and CI/CD
-
----
-
 ## ▶️ Next Steps (coming up)
 
 - Add **production profile** (PostgreSQL)
