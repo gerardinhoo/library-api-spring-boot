@@ -1,0 +1,86 @@
+{
+  "info": {
+    "name": "Library API (Local)",
+    "_postman_id": "b7a6d3a1-1c2b-4f0f-8f2a-111111111111",
+    "description": "CRUD for books on Spring Boot (H2 dev)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "bookId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Create Book (201)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/books",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Clean Code\",\n  \"author\": \"Robert C. Martin\",\n  \"isbn\": \"978-0132350884\",\n  \"yearPublished\": 2008\n}"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+              "pm.test(\"JSON\", () => pm.response.to.have.header(\"Content-Type\"));",
+              "const json = pm.response.json();",
+              "pm.environment.set(\"bookId\", json.id);",
+              "pm.test(\"Has id\", () => pm.expect(json.id).to.be.a(\"number\"));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "List Books (200)",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/books" },
+      "response": []
+    },
+    {
+      "name": "Get Book by ID (200/404)",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/books/{{bookId}}" },
+      "response": []
+    },
+    {
+      "name": "Update Book (200)",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/books/{{bookId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"title\": \"Clean Code (Updated)\" }"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Book (204)",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/api/books/{{bookId}}"
+      },
+      "response": []
+    },
+    {
+      "name": "Create Invalid (400 validation)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/books",
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"title\": \"\", \"author\": \"\" }"
+        }
+      },
+      "response": []
+    }
+  ]
+}
