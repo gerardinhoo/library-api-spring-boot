@@ -160,6 +160,141 @@ java -jar target/library-api-0.0.1-SNAPSHOT.jar
 
 ---
 
+<<<<<<< HEAD
+=======
+## 🧑‍💼 Talking Points
+
+- Java 17 + Spring Boot 3 REST API implementing full CRUD
+- DTO validation + global exception handling
+- Spring Data JPA with an H2 dev profile; easy swap to Postgres for prod
+- Built and run with Maven; ready for Docker and CI/CD
+
+---
+
+## ☸️ Deploying the API to GKE (dev/H2)
+
+The app has been containerized and deployed to **Google Kubernetes Engine** with a `LoadBalancer` service.  
+This runs the app with the **dev (H2)** profile inside the container.
+
+### 1) Container image
+
+```bash
+# build locally (optional)
+docker build -t library-api:dev .
+
+# run locally (optional)
+docker run --rm -p 8080:8080 library-api:dev
+```
+
+## 2) Create / connect to a GKE cluster
+
+gcloud config set project <YOUR_PROJECT_ID>
+
+# Autopilot/Standard both fine; we used create-auto in us-central1
+
+gcloud container clusters create-auto library-api --region us-central1
+
+# wire kubectl to the cluster
+
+gcloud container clusters get-credentials library-api --region us-central1
+kubectl config current-context
+
+## 3) Apply Kubernetes manifests
+
+k8s/library-api.yaml (already in this repo) defines Namespace, Deployment, and Service:
+
+apiVersion: v1
+kind: Namespace
+metadata:
+name: library
+
+---
+
+```bash
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+name: library-api
+namespace: library
+spec:
+replicas: 1
+selector:
+matchLabels: { app: library-api }
+template:
+metadata:
+labels: { app: library-api }
+spec:
+containers: - name: api
+image: ghcr.io/gerardinhoo/library-api-spring-boot:latest
+imagePullPolicy: Always
+env: - name: SPRING_PROFILES_ACTIVE
+value: "dev" # H2 in-memory
+ports: - containerPort: 8080
+readinessProbe:
+httpGet: { path: "/", port: 8080 }
+initialDelaySeconds: 10
+periodSeconds: 5
+livenessProbe:
+httpGet: { path: "/", port: 8080 }
+initialDelaySeconds: 20
+periodSeconds: 10
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+name: library-api
+namespace: library
+spec:
+type: LoadBalancer
+selector: { app: library-api }
+ports: - name: http
+port: 80
+targetPort: 8080
+```
+
+### Deploy:
+
+kubectl apply -f k8s/library-api.yaml
+kubectl rollout status deploy/library-api -n library --timeout=180s
+
+## 4) Get a public IP & test
+
+kubectl get svc library-api -n library -w # wait until EXTERNAL-IP shows up
+
+# once you have an IP:
+
+EXT=<EXTERNAL_IP>
+curl -i http://$EXT/
+curl -s http://$EXT/api/books
+curl -s -X POST http://$EXT/api/books \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Clean Code","author":"Robert C. Martin","isbn":"978-0132350884","yearPublished":2008}'
+curl -s http://$EXT/api/books
+
+## 5) 🧠 How it works in Kubernetes
+
+Deployment ensures the pod is running and self-heals on crashes.
+
+Readiness / Liveness probes protect traffic and restart unhealthy pods.
+
+Service (LoadBalancer) provisions a cloud load balancer with a public IP (port 80 → container 8080).
+
+## 6) 🧰 Troubleshooting (K8s)
+
+Pods in CrashLoopBackOff
+kubectl logs -n library deploy/library-api -f
+
+Service EXTERNAL-IP is <pending>
+Wait 1–2 minutes; confirm type: LoadBalancer and that the cluster has external LB quota.
+
+Image pull errors
+Check image: value (registry, repo, tag) and that the image is public or the node can auth.
+
+---
+
+>>>>>>> 0df107f (k8s: add Deployment/Service manifest for GKE (dev/H2), docs: add GKE deployment guide and curl examples)
 ## ▶️ Next Steps (coming up)
 
 - Add **production profile** (PostgreSQL)
