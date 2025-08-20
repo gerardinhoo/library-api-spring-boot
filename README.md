@@ -6,7 +6,7 @@ A simple REST API that manages **books**. Built with a clean layering style (Con
 
 ---
 
-## ✨ Features
+### ✨ Features
 
 - REST endpoints for **Book** CRUD
 - Input **validation** (Jakarta Validation)
@@ -17,7 +17,7 @@ A simple REST API that manages **books**. Built with a clean layering style (Con
 
 ---
 
-## 🧱 Tech Stack
+### 🧱 Tech Stack
 
 - **Java**: 17
 - **Spring Boot**: 3.5.x
@@ -26,7 +26,7 @@ A simple REST API that manages **books**. Built with a clean layering style (Con
 
 ---
 
-## 🚀 Quick Start
+### 🚀 Quick Start
 
 ```bash
 # 1) run the app (dev profile / H2)
@@ -43,7 +43,7 @@ If you see the string `Library API is running` at `/`, the app is up.
 
 ---
 
-## ⚙️ Configuration (dev)
+### ⚙️ Configuration (dev)
 
 `src/main/resources/application.properties`
 
@@ -66,7 +66,7 @@ spring.h2.console.path=/h2
 
 ---
 
-## 📦 Project Structure (high level)
+### 📦 Project Structure (high level)
 
 ```
 src/main/java/com/example/library_api/
@@ -84,7 +84,7 @@ src/main/java/com/example/library_api/
 
 ---
 
-## 🔌 API Endpoints
+### 🔌 API Endpoints
 
 Base: `http://localhost:8080`
 
@@ -125,7 +125,7 @@ curl http://localhost:8080/api/books
 
 ---
 
-## 🧪 Postman Collection
+### 🧪 Postman Collection
 
 Import the collection from `docs/postman/Library-API.postman_collection.json` and set the collection variable:
 
@@ -135,7 +135,7 @@ The collection includes: Create, List, Get by ID, Update, Delete, and an Invalid
 
 ---
 
-## 🛠️ Build
+### 🛠️ Build
 
 ```bash
 # compile & run tests
@@ -149,7 +149,7 @@ java -jar target/library-api-0.0.1-SNAPSHOT.jar
 
 ---
 
-## 🧭 How it works (one line)
+### 🧭 How it works (one line)
 
 **HTTP → Controller → Service → Repository (JPA/Hibernate) → H2 → JSON back**
 
@@ -160,7 +160,7 @@ java -jar target/library-api-0.0.1-SNAPSHOT.jar
 
 ---
 
-## ☸️ Deploying the API to GKE (dev/H2)
+### ☸️ Deploying the API to GKE (dev/H2)
 
 The app has been containerized and deployed to **Google Kubernetes Engine** with a `LoadBalancer` service.  
 This runs the app with the **dev (H2)** profile inside the container.
@@ -181,13 +181,13 @@ docker run --rm -p 8080:8080 library-api:dev
 gcloud config set project <YOUR_PROJECT_ID>
 ```
 
-# Autopilot (used here) in us-central1
+### Autopilot (used here) in us-central1
 
 ```bash
 gcloud container clusters create-auto library-api --region us-central1
 ```
 
-# wire kubectl to the cluster
+### wire kubectl to the cluster
 
 ```bash
 gcloud container clusters get-credentials library-api --region us-central1
@@ -263,7 +263,7 @@ kubectl apply -f k8s/library-api.yaml
 kubectl rollout status deploy/library-api -n library --timeout=180s
 ```
 
-## 4) Get a public IP & test
+### 4) Get a public IP & test
 
 ```bash
 kubectl get svc library-api -n library -w   # wait until EXTERNAL-IP shows up
@@ -278,7 +278,29 @@ curl -s -X POST http://$EXT/api/books \
 curl -s http://$EXT/api/books
 ```
 
-# once you have an IP:
+### 5) 🧠 How it works in Kubernetes
+
+Deployment keeps the pod running and self-heals on crashes.
+
+Readiness / Liveness probes protect traffic and restart unhealthy pods.
+
+Service (LoadBalancer) provisions a cloud load balancer with a public IP (port 80 → container 8080).
+
+### 6) 🧰 Troubleshooting (K8s)
+
+Pods in CrashLoopBackOff
+
+```bash
+kubectl logs -n library deploy/library-api -f
+```
+
+Service EXTERNAL-IP is <pending>
+Wait 1–2 minutes; confirm type: LoadBalancer and that the project has external LB quota.
+
+Image pull errors
+Check the image: value (registry/repo/tag) and that the image is public or the cluster can authenticate.
+
+### once you have an IP:
 
 ```bash
 EXT=<EXTERNAL_IP>
@@ -292,7 +314,7 @@ curl -s http://$EXT/api/books
 
 ---
 
-## ▶️ Next Steps (coming up)
+### ▶️ Next Steps (coming up)
 
 - Add **production profile** (PostgreSQL)
 - **Dockerfile** (multi‑stage) and optional `docker compose` with Postgres
@@ -301,7 +323,7 @@ curl -s http://$EXT/api/books
 
 ---
 
-## Troubleshooting
+### Troubleshooting
 
 - **Port 8080 already in use**: stop the previous run (Ctrl+C), or run on another port `--server.port=8081`.
 - **“No plugin found for prefix 'spring-boot'”**: ensure you run Maven **in the folder with `pom.xml`** or use the wrapper `./mvnw spring-boot:run`.
